@@ -10,8 +10,7 @@ pipeline {
         }
         stage('Test by Docker container') {
             steps {
-                sh "docker build -t testapp:${BUILD_NUMBER} ."
-                sh "docker run -d -ti -p 8090:8080 testapp:${BUILD_NUMBER} java -jar *.jar"
+                sh """ if [ ! "\$(docker ps -q -f name=maven)" ];then if [ "\$(docker ps -aq -f status=exited -f name=test_jar)" ];then docker rm maven -f fi docker build -t pipeline . docker run --name maven -d -p 8090:8080 pipeline java -jar *.jar fi"""
             }
         }
         stage('deploy to nexus') {
